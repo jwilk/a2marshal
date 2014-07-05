@@ -1,0 +1,160 @@
+#!/usr/bin/python3
+
+import glob
+import os
+import pwd
+import random
+import shlex
+import subprocess
+import sys
+import threading
+import time
+
+import netifaces
+
+import keyboardleds
+
+modem_device = '/dev/serial/by-id/usb-HUAWEI_HUAWEI_Mobile-if00-port0'
+keyboard_device = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
+
+def msg_start(msg):
+    print(msg, end=': ')
+    sys.stdout.flush()
+
+def msg_ping():
+    print('.', end='')
+    sys.stdout.flush()
+
+def msg_end(msg):
+    print(msg)
+    sys.stdout.flush()
+
+def run(cmdline):
+    cmdline = shlex.split(cmdline)
+    subprocess.check_call(cmdline)
+
+def pgrep(command):
+    for procdir in glob.glob('/proc/[0-9]*'):
+        try:
+            with open(procdir + '/cmdline', 'r') as file:
+                pcmdline = file.read()
+        except OSError:
+            continue
+        pcommand = pcmdline.split('\0', 1)[0]
+        if pcommand == command:
+            return True
+
+def usb_modeswitch():
+    msg_start('modem device')
+    if not os.path.exists(modem_device):
+        run('udevadm trigger --action=add --subsystem-match usb')
+        while not os.path.exists(modem_device):
+            msg_ping()
+            time.sleep(1)
+        msg_ping()
+        time.sleep(1)
+    assert os.path.exists(modem_device)
+    msg_end(modem_device)
+
+def net_down():
+    msg_start('bringing network down')
+    run('ifdown ppp')
+    msg_ping()
+    while pgrep('/usr/bin/wvdial'):
+        time.sleep(1)
+        msg_ping()
+    msg_end('done')
+
+def net_up():
+    msg_start('bringing network up')
+    run('ifup ppp')
+    msg_ping()
+    for i in range(15):
+        try:
+            netifaces.ifaddresses('ppp0')[netifaces.AF_INET]
+        except (KeyError, ValueError):
+            pass
+        else:
+            break
+        time.sleep(1)
+        msg_ping()
+    else:
+        msg_end('FAILED')
+        return
+    msg_end('done')
+
+def abdicate():
+    user = os.environ['SUDO_USER']
+    userinfo = pwd.getpwnam(user)
+    uid = userinfo.pw_uid
+    gid = userinfo.pw_gid
+    def switch_user():
+        os.setgroups([])
+        os.setgid(gid)
+        os.setuid(uid)
+    subprocess.check_call(['./abdicate'], preexec_fn=switch_user)
+
+class Blinker(threading.Thread):
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.event = threading.Event()
+        self.led = keyboardleds.LedKit(keyboard_device).caps_lock
+
+    def run(self):
+        i = 0
+        while 1:
+            self.event.wait(0.1 + random.random() * 0.2)
+            if self.event.is_set():
+                break
+            if i % 2:
+                self.led.set()
+            else:
+                self.led.reset()
+            i += 1
+        self.led.reset()
+
+    def stop(self):
+        self.event.set()
+
+def main():
+    prefix = []
+    if 'STY' not in os.environ:
+        prefix += ['screen', '-d', '-R', 'aero2']
+    if os.getuid() != 0:
+        prefix += ['sudo', '-E', '-u', 'root']
+    if prefix:
+        os.execvp(prefix[0], prefix + [sys.executable, __file__] + sys.argv[1:])
+    os.chdir(os.path.dirname(__file__))
+    usb_modeswitch()
+    last_address = None
+    while 1:
+        try:
+            address = netifaces.ifaddresses('ppp0')
+            [address] = address[netifaces.AF_INET]
+            address = address['addr']
+        except (KeyError, ValueError):
+            address = None
+        if address is None:
+            net_down()
+            net_up()
+            continue
+        if address.startswith('10.'):
+            blinker = Blinker()
+            blinker.start()
+            abdicate()
+            blinker.stop()
+            net_down()
+            net_up()
+            blinker.join()
+            continue
+        if address != last_address:
+            msg_start('IP')
+            msg_end(address)
+            last_address = address
+        time.sleep(1 + random.random())
+
+if __name__ == '__main__':
+    main()
+
+# vim:ts=4 sw=4 et
