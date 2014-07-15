@@ -144,8 +144,10 @@ def main():
         if address.startswith('10.'):
             blinker = Blinker()
             blinker.start()
-            abdicate()
-            blinker.stop()
+            try:
+                abdicate()
+            finally:
+                blinker.stop()
             net_down()
             net_up()
             blinker.join()
