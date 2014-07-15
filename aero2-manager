@@ -125,7 +125,9 @@ def main():
         prefix += ['sudo', '-E', '-u', 'root']
     if prefix:
         os.execvp(prefix[0], prefix + [sys.executable, __file__] + sys.argv[1:])
-    os.chdir(os.path.dirname(__file__))
+    os.chdir(
+        os.path.dirname(os.path.realpath(__file__))
+    )
     usb_modeswitch()
     last_address = None
     while 1:
