@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import datetime
 import glob
 import os
 import pwd
@@ -82,6 +83,9 @@ def net_up():
         msg_end('FAILED')
         return
     msg_end('done')
+    now = datetime.datetime.now().replace(microsecond=0)
+    msg_start('timestamp')
+    msg_end(str(now))
 
 def abdicate():
     user = os.environ['SUDO_USER']
