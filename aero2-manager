@@ -100,13 +100,22 @@ def abdicate():
     subprocess.check_call(['./abdicate'], preexec_fn=switch_user)
 
 def terror():
-    conn = http.client.HTTPConnection('www.example.org')
-    conn.request('HEAD', '/')
-    response = conn.getresponse()
-    return (
-        response.status == 302 and
-        response.getheader('Location').startswith('http://bdi.')
-    )
+    msg_start('checking network')
+    while True:
+        msg_ping()
+        try:
+            conn = http.client.HTTPConnection('www.example.org')
+            conn.request('HEAD', '/')
+            response = conn.getresponse()
+        except ConnectionError:
+            time.sleep(0.5 + random.random())
+            continue
+        terror = (
+            response.status == 302 and
+            response.getheader('Location').startswith('http://bdi.')
+        )
+        msg_end('captcha redirect' if terror else 'ok')
+        return terror
 
 class Blinker(threading.Thread):
 
@@ -155,21 +164,22 @@ def main():
             net_down()
             net_up()
             continue
-        if terror():
-            blinker = Blinker()
-            blinker.start()
-            try:
-                abdicate()
-            finally:
-                blinker.stop()
-            net_down()
-            net_up()
-            blinker.join()
-            continue
         if address != last_address:
             msg_start('IP')
             msg_end(address)
             last_address = address
+            if terror():
+                blinker = Blinker()
+                blinker.start()
+                try:
+                    abdicate()
+                finally:
+                    blinker.stop()
+                net_down()
+                net_up()
+                blinker.join()
+                last_address = None
+                continue
         time.sleep(1 + random.random())
 
 if __name__ == '__main__':
