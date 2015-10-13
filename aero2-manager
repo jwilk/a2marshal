@@ -134,15 +134,16 @@ class Blinker(threading.Thread):
 
     def run(self):
         i = 0
-        while 1:
-            self.event.wait(0.1 + random.random() * 0.2)
+        while True:
+            i += 1
             if self.event.is_set():
                 break
             if i % 2:
                 self.led.set()
+                self.event.wait(2.5)
             else:
                 self.led.reset()
-            i += 1
+                self.event.wait(0.5)
         self.led.reset()
 
     def stop(self):
