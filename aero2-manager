@@ -6,7 +6,6 @@ import http.client
 import os
 import pwd
 import random
-import shlex
 import subprocess
 import sys
 import threading
@@ -36,9 +35,8 @@ def msg_now():
     msg_start('timestamp')
     msg_end(str(now))
 
-def run(cmdline):
-    cmdline = shlex.split(cmdline)
-    subprocess.check_call(cmdline)
+def run(cmdline, shell=True):
+    subprocess.check_call(cmdline, shell=shell)
 
 def pgrep(command):
     for procdir in glob.glob('/proc/[0-9]*'):
