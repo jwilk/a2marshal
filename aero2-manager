@@ -8,6 +8,7 @@ import pwd
 import random
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 
@@ -37,6 +38,20 @@ def msg_now():
 
 def run(cmdline, shell=True):
     subprocess.check_call(cmdline, shell=shell)
+
+def update_resolv_conf():
+    path = '/proc/{pid}/ns/mnt'
+    assert not os.path.samefile(
+        path.format(pid=1),
+        path.format(pid=os.getpid()),
+    )
+    with tempfile.NamedTemporaryFile(prefix='aero2-mananger.resolvconf.') as rdest:
+        with open('resolv.conf', 'rb') as rsource:
+            data = rsource.read()
+        rdest.write(data)
+        rdest.flush()
+        run(['mount', '--bind', rdest.name, '/etc/resolv.conf'], shell=False)
+    os.chmod('/etc/resolv.conf', 0o644)
 
 def pgrep(command):
     for procdir in glob.glob('/proc/[0-9]*'):
@@ -149,17 +164,23 @@ class Blinker(threading.Thread):
     def stop(self):
         self.event.set()
 
+private_ns_token = 'AERO2_MANAGER_PRIVATE_NS'
+
 def main():
     prefix = []
     if 'STY' not in os.environ:
         prefix += ['screen', '-d', '-R', 'aero2']
     if os.getuid() != 0:
         prefix += ['sudo', '-E', '-u', 'root']
+    if private_ns_token not in os.environ:
+        os.environ[private_ns_token] = '1'
+        prefix += ['unshare', '-m']
     if prefix:
         os.execvp(prefix[0], prefix + [sys.executable, __file__] + sys.argv[1:])
     os.chdir(
         os.path.dirname(os.path.realpath(__file__))
     )
+    update_resolv_conf()
     usb_modeswitch()
     last_address = None
     while 1:
