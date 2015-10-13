@@ -31,6 +31,11 @@ def msg_end(msg):
     print(msg)
     sys.stdout.flush()
 
+def msg_now():
+    now = datetime.datetime.now().replace(microsecond=0)
+    msg_start('timestamp')
+    msg_end(str(now))
+
 def run(cmdline):
     cmdline = shlex.split(cmdline)
     subprocess.check_call(cmdline)
@@ -84,9 +89,7 @@ def net_up():
         msg_end('FAILED')
         return
     msg_end('done')
-    now = datetime.datetime.now().replace(microsecond=0)
-    msg_start('timestamp')
-    msg_end(str(now))
+    msg_now()
 
 def abdicate():
     user = os.environ['SUDO_USER']
