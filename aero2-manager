@@ -125,6 +125,13 @@ class Blinker(threading.Thread):
         self.event = threading.Event()
         self.led = keyboardleds.LedKit(keyboard_device).caps_lock
 
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, tp, exc, tb):
+        self.stop()
+
     def run(self):
         i = 0
         while 1:
@@ -170,12 +177,8 @@ def main():
             msg_end(address)
             last_address = address
             if terror():
-                blinker = Blinker()
-                blinker.start()
-                try:
+                with Blinker() as blinker:
                     abdicate()
-                finally:
-                    blinker.stop()
                 net_down()
                 net_up()
                 blinker.join()
