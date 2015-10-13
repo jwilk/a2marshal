@@ -102,7 +102,6 @@ def net_up():
         msg_end('FAILED')
         return
     msg_end('done')
-    msg_now()
 
 def abdicate():
     user = os.environ['SUDO_USER']
@@ -201,10 +200,12 @@ def main():
             if terror():
                 with Blinker() as blinker:
                     abdicate()
-                net_down()
-                net_up()
+                if terror():
+                    net_down()
+                    net_up()
+                    last_address = None
                 blinker.join()
-                last_address = None
+                msg_now()
                 continue
         time.sleep(1 + random.random())
 
