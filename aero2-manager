@@ -114,7 +114,7 @@ def abdicate():
         os.setgroups([])
         os.setgid(gid)
         os.setuid(uid)
-    subprocess.check_call(['./abdicate'], preexec_fn=switch_user)
+    subprocess.check_call(['./abdicate', '--copy-to', 'captchas'], preexec_fn=switch_user)
 
 def terror():
     msg_start('checking network')
