@@ -17,9 +17,7 @@ import netifaces
 import keyboardleds
 
 modem_device = '/dev/serial/by-id/usb-HUAWEI_HUAWEI_Mobile-if00-port0'
-# keyboard_device = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
-[keyboard_sys] = glob.glob('/sys/devices/platform/i8042/serio0/input/input*/event*')
-keyboard_device = '/dev/input/' + os.path.basename(keyboard_sys)
+keyboard_device = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
 
 def msg_start(msg):
     print(msg, end=': ')
