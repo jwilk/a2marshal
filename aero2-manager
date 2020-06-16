@@ -48,13 +48,7 @@ def update_resolv_conf():
         path.format(pid=1),
         path.format(pid=os.getpid()),
     )
-    with tempfile.NamedTemporaryFile(prefix='aero2-mananger.resolvconf.') as rdest:
-        with open('resolv.conf', 'rb') as rsource:
-            data = rsource.read()
-        rdest.write(data)
-        rdest.flush()
-        run(['mount', '--bind', rdest.name, '/etc/resolv.conf'], shell=False)
-    os.chmod('/etc/resolv.conf', 0o644)
+    run('mount --bind /etc/ppp/resolv.conf /etc/resolv.conf')
 
 def pgrep(command):
     for procdir in glob.glob('/proc/[0-9]*'):
