@@ -75,7 +75,7 @@ def usb_modeswitch():
 
 def net_down():
     msg_start('bringing network down')
-    run('ifdown ppp-aero2')
+    run('nsenter -t 1 -m ifdown ppp-aero2')
     msg_ping()
     while pgrep('/usr/bin/wvdial'):
         time.sleep(1)
@@ -84,7 +84,7 @@ def net_down():
 
 def net_up():
     msg_start('bringing network up')
-    run('ifup ppp-aero2')
+    run('nsenter -t 1 -m ifup ppp-aero2')
     msg_ping()
     for i in range(15):
         try:
