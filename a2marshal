@@ -187,9 +187,6 @@ def main():
         prefix += ['unshare', '-m']
     if prefix:
         os.execvp(prefix[0], prefix + [sys.executable, __file__] + sys.argv[1:])
-    os.chdir(
-        os.path.dirname(os.path.realpath(__file__))
-    )
     update_resolv_conf()
     if options.modem_dev is not None:
         usb_modeswitch(options.modem_dev)
