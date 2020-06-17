@@ -10,6 +10,7 @@ import http.client
 import os
 import pwd
 import random
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -98,7 +99,7 @@ def net_up():
         return
     msg_end('done')
 
-def abdicate():
+def abdicate(cmdline):
     user = os.environ['SUDO_USER']
     userinfo = pwd.getpwnam(user)
     uid = userinfo.pw_uid
@@ -107,7 +108,7 @@ def abdicate():
         os.setgroups([])
         os.setgid(gid)
         os.setuid(uid)
-    subprocess.check_call(['./abdicate', '--copy-to', 'captchas'], preexec_fn=switch_user)
+    subprocess.check_call(cmdline, preexec_fn=switch_user)
 
 def terror():
     msg_start('checking network')
@@ -171,6 +172,12 @@ def main():
         'use this input device for LED blinking '
         f'(default: {default_keyboard_dev})'
     )
+    def ap_cmdline(s):
+        return shlex.split(s)
+    ap_cmdline.__name__ = 'command-line'
+    ap.add_argument('--abdicate', dest='abdicate_cmd', metavar='CMDLINE', type=ap_cmdline,
+        default='abdicate', help='command line for abdicate'
+    )
     options = ap.parse_args()
     prefix = []
     if os.getuid() != 0:
@@ -204,7 +211,7 @@ def main():
             last_address = address
             if terror():
                 with Blinker(options.keyboard_dev) as blinker:
-                    abdicate()
+                    abdicate(options.abdicate_cmd)
                 if terror():
                     net_down()
                     net_up()
