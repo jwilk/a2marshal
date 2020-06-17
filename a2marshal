@@ -20,7 +20,6 @@ import netifaces
 
 import keyboardleds
 
-modem_device = '/dev/serial/by-id/usb-HUAWEI_HUAWEI_Mobile-if00-port0'
 keyboard_device = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
 
 def msg_start(msg):
@@ -62,7 +61,7 @@ def pgrep(command):
         if pcommand == command:
             return True
 
-def usb_modeswitch():
+def usb_modeswitch(modem_device):
     msg_start('modem device')
     if not os.path.exists(modem_device):
         run('udevadm trigger --action=add --subsystem-match usb')
@@ -165,6 +164,10 @@ private_ns_token = 'AERO2_MANAGER_PRIVATE_NS'
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument('--modem-dev', metavar='PATH', help=
+        'run "udevadm trigger" if this device doesn\'t exist; '
+        'this might be needed when usb-modeswitch is misbehaving'
+    )
     options = ap.parse_args()
     prefix = []
     if os.getuid() != 0:
@@ -178,7 +181,8 @@ def main():
         os.path.dirname(os.path.realpath(__file__))
     )
     update_resolv_conf()
-    usb_modeswitch()
+    if options.modem_dev is not None:
+        usb_modeswitch(options.modem_dev)
     last_address = None
     while 1:
         try:
