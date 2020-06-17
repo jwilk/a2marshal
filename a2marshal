@@ -38,7 +38,8 @@ def msg_now():
     msg_start('timestamp')
     msg_end(str(now))
 
-def run(cmdline, shell=True):
+def run(cmdline):
+    shell = isinstance(cmdline, str)
     subprocess.check_call(cmdline, shell=shell)
 
 def update_resolv_conf():
