@@ -164,8 +164,6 @@ private_ns_token = 'AERO2_MANAGER_PRIVATE_NS'
 
 def main():
     prefix = []
-    if 'STY' not in os.environ:
-        prefix += ['screen', '-d', '-R', 'aero2']
     if os.getuid() != 0:
         prefix += ['sudo', '-E', '-u', 'root']
     if private_ns_token not in os.environ:
