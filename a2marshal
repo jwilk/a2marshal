@@ -20,8 +20,6 @@ import netifaces
 
 import keyboardleds
 
-keyboard_device = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
-
 def msg_start(msg):
     print(msg, end=': ')
     sys.stdout.flush()
@@ -131,7 +129,7 @@ def terror():
 
 class Blinker(threading.Thread):
 
-    def __init__(self):
+    def __init__(self, keyboard_device):
         threading.Thread.__init__(self)
         self.event = threading.Event()
         self.led = keyboardleds.LedKit(keyboard_device).caps_lock
@@ -168,6 +166,11 @@ def main():
         'run "udevadm trigger" if this device doesn\'t exist; '
         'this might be needed when usb-modeswitch is misbehaving'
     )
+    default_keyboard_dev = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
+    ap.add_argument('--keyboard-dev', metavar='PATH', default=default_keyboard_dev, help=
+        'use this input device for LED blinking '
+        f'(default: {default_keyboard_dev})'
+    )
     options = ap.parse_args()
     prefix = []
     if os.getuid() != 0:
@@ -200,7 +203,7 @@ def main():
             msg_end(address)
             last_address = address
             if terror():
-                with Blinker() as blinker:
+                with Blinker(options.keyboard_dev) as blinker:
                     abdicate()
                 if terror():
                     net_down()
