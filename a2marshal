@@ -194,7 +194,7 @@ def main():
     if options.modem_dev is not None:
         usb_modeswitch(options.modem_dev)
     last_address = None
-    while 1:
+    while True:
         try:
             address = netifaces.ifaddresses('ppp0')
             [address] = address[netifaces.AF_INET]
