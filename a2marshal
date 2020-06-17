@@ -3,6 +3,7 @@
 # Copyright © 2014-2020 Jakub Wilk <jwilk@jwilk.net>
 # SPDX-License-Identifier: MIT
 
+import argparse
 import datetime
 import glob
 import http.client
@@ -163,6 +164,8 @@ class Blinker(threading.Thread):
 private_ns_token = 'AERO2_MANAGER_PRIVATE_NS'
 
 def main():
+    ap = argparse.ArgumentParser()
+    options = ap.parse_args()
     prefix = []
     if os.getuid() != 0:
         prefix += ['sudo', '-E', '-u', 'root']
