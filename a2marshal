@@ -73,18 +73,18 @@ def usb_modeswitch(modem_device):
     assert os.path.exists(modem_device)
     msg_end(modem_device)
 
-def net_down():
+def net_down(iface):
     msg_start('bringing network down')
-    run('nsenter -t 1 -m ifdown ppp-aero2')
+    run('nsenter -t 1 -m ifdown'.split() + [iface])
     msg_ping()
     while pgrep('/usr/bin/wvdial'):
         time.sleep(1)
         msg_ping()
     msg_end('done')
 
-def net_up():
+def net_up(iface):
     msg_start('bringing network up')
-    run('nsenter -t 1 -m ifup ppp-aero2')
+    run('nsenter -t 1 -m ifup'.split() + [iface])
     msg_ping()
     for i in range(15):
         try:
@@ -164,6 +164,10 @@ private_ns_token = 'AERO2_MANAGER_PRIVATE_NS'
 
 def main():
     ap = argparse.ArgumentParser()
+    default_iface = 'ppp-aero2'
+    ap.add_argument('--iface', metavar='IFACE', default=default_iface, help=
+        f'ifupdown interface name (default: {default_iface})'
+    )
     ap.add_argument('--modem-dev', metavar='PATH', help=
         'run "udevadm trigger" if this device doesn\'t exist; '
         'this might be needed when usb-modeswitch is misbehaving'
@@ -200,8 +204,8 @@ def main():
         except (KeyError, ValueError):
             address = None
         if address is None:
-            net_down()
-            net_up()
+            net_down(options.iface)
+            net_up(options.iface)
             continue
         if address != last_address:
             msg_start('IP')
@@ -211,8 +215,8 @@ def main():
                 with Blinker(options.keyboard_dev) as blinker:
                     abdicate(options.abdicate_cmd)
                 if terror():
-                    net_down()
-                    net_up()
+                    net_down(options.iface)
+                    net_up(options.iface)
                     last_address = None
                 blinker.join()
                 msg_now()
