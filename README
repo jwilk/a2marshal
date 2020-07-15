@@ -1,0 +1,38 @@
+Usage
+=====
+
+.. code:: console
+
+   $ a2marshal --help
+   usage: a2marshal [-h] [--iface IFACE] [--modem-dev PATH] [--keyboard-dev PATH]
+                    [--abdicate CMDLINE]
+
+   optional arguments:
+     -h, --help           show this help message and exit
+     --iface IFACE        ifupdown interface name (default: ppp-aero2)
+     --modem-dev PATH     run "udevadm trigger" if this device doesn't exist;
+                          this might be needed when usb-modeswitch is misbehaving
+     --keyboard-dev PATH  use this input device for LED blinking (default:
+                          /dev/input/by-path/platform-i8042-serio-0-event-kbd)
+     --abdicate CMDLINE   command line for abdicate
+
+Prerequisites
+=============
+
+* Python ≥ 3.6
+* netifaces_
+* python-keyboardleds_
+* abdicate_
+* ifupdown_
+* WvDial
+
+.. _netifaces:
+   https://pypi.org/project/netifaces/
+.. _python-keyboardleds:
+   https://pypi.org/project/python-keyboardleds/
+.. _abdicate:
+   https://github.com/jwilk/abdicate
+.. _ifupdown:
+   https://packages.debian.org/unstable/ifupdown
+
+.. vim:ft=rst ts=3 sts=3 sw=3 et
