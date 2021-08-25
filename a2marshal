@@ -166,6 +166,9 @@ private_ns_token = 'AERO2_MANAGER_PRIVATE_NS'
 
 def main():
     ap = argparse.ArgumentParser()
+    if sys.version_info < (3, 10):
+        # https://bugs.python.org/issue9694
+        ap._optionals.title = 'options'
     default_iface = 'ppp-aero2'
     ap.add_argument('--iface', metavar='IFACE', default=default_iface, help=
         f'ifupdown interface name (default: {default_iface})'

@@ -7,7 +7,7 @@ Usage
    usage: a2marshal [-h] [--iface IFACE] [--modem-dev PATH] [--keyboard-dev PATH]
                     [--abdicate CMDLINE]
 
-   optional arguments:
+   options:
      -h, --help           show this help message and exit
      --iface IFACE        ifupdown interface name (default: ppp-aero2)
      --modem-dev PATH     run "udevadm trigger" if this device doesn't exist;
