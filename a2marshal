@@ -125,12 +125,12 @@ def terror():
         except ConnectionError:
             time.sleep(0.5 + random.random())
             continue
-        terror = (
+        is_terror = (
             response.status == 302 and
             response.getheader('Location').startswith('http://bdi.')
         )
-        msg_end('captcha redirect' if terror else 'ok')
-        return terror
+        msg_end('captcha redirect' if is_terror else 'ok')
+        return is_terror
 
 class Blinker(threading.Thread):
 
