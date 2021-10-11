@@ -137,7 +137,7 @@ class Blinker(threading.Thread):
     def __init__(self, keyboard_device):
         threading.Thread.__init__(self)
         self.event = threading.Event()
-        self.led = keyboardleds.LedKit(keyboard_device).caps_lock
+        self.led = keyboardleds.LedKit(keyboard_device).caps_lock  # pylint: disable=no-member
 
     def __enter__(self):
         self.start()
