@@ -21,7 +21,7 @@ import netifaces
 
 import keyboardleds
 
-0_0  # Python >= 3.6 is required
+type(0_0)  # Python >= 3.6 is required
 
 def msg_start(msg):
     print(msg, end=': ')
