@@ -90,6 +90,7 @@ def net_up(iface):
     run('nsenter -t 1 -m ifup'.split() + [iface])
     msg_ping()
     for i in range(15):
+        del i
         try:
             netifaces.ifaddresses('ppp0')[netifaces.AF_INET]
         except (KeyError, ValueError):
