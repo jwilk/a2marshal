@@ -62,6 +62,7 @@ def pgrep(command):
         pcommand = pcmdline.split('\0', 1)[0]
         if pcommand == command:
             return True
+    return None
 
 def usb_modeswitch(modem_device):
     msg_start('modem device')
