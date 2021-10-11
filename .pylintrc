@@ -1,0 +1,21 @@
+[MASTER]
+load-plugins = pylint.extensions.check_elif
+extension-pkg-whitelist = netifaces
+
+[MESSAGES CONTROL]
+disable =
+    invalid-name,
+    missing-class-docstring,
+    missing-function-docstring,
+    missing-module-docstring,
+
+[REPORTS]
+reports = no
+score = no
+msg-template = {path}:{line}: {C}: {symbol} [{obj}] {msg}
+
+[FORMAT]
+max-line-length = 100
+expected-line-ending-format = LF
+
+# vim:ft=dosini ts=4 sts=4 sw=4 et
