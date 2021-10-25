@@ -55,7 +55,7 @@ def update_resolv_conf():
 def pgrep(command):
     for procdir in glob.glob('/proc/[0-9]*'):
         try:
-            with open(procdir + '/cmdline', 'r') as file:
+            with open(procdir + '/cmdline', 'r', encoding='ASCII', errors='replace') as file:
                 pcmdline = file.read()
         except OSError:
             continue
