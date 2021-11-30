@@ -123,7 +123,7 @@ def terror():
             conn = http.client.HTTPConnection('www.example.org')
             conn.request('HEAD', '/')
             response = conn.getresponse()
-        except ConnectionError:
+        except (ConnectionError, OSError):
             time.sleep(0.5 + random.random())
             continue
         is_terror = (
