@@ -249,6 +249,7 @@ def main():
     if options.modem_dev is not None:
         usb_modeswitch(options.modem_dev)
     last_address = None
+    Blinker(options.keyboard_dev)  # check for errors early
     while True:
         try:
             address = netifaces.ifaddresses('ppp0')
