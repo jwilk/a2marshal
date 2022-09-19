@@ -5,10 +5,13 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
+import contextlib
 import datetime
+import errno
 import glob
 import http.client
 import os
+import pathlib
 import pwd
 import random
 import shlex
@@ -18,8 +21,6 @@ import threading
 import time
 
 import netifaces
-
-import keyboardleds
 
 type(0_0)  # Python >= 3.6 is required
 
@@ -133,12 +134,41 @@ def terror():
         msg_end('captcha redirect' if is_terror else 'ok')
         return is_terror
 
+class Led():
+
+    def __init__(self, sys_path):
+        self._path = sys_path
+        with open(self._path / 'max_brightness', 'rb') as fp:
+            self._max_brightness = fp.read()
+
+    def set(self, value=1):
+        bvalue = self._max_brightness if value else b'0'
+        with open(self._path / 'brightness', 'wb') as fp:
+            fp.write(bvalue)
+
+    def reset(self):
+        self.set(0)
+
+class Leds():
+
+    def __init__(self, dev_path):
+        dev_path = dev_path.resolve()
+        try:
+            rel_path = dev_path.relative_to('/dev/input')
+        except ValueError:
+            raise OSError(errno.ENOTTY, 'not an input device', str(dev_path)) from None
+        self._path = '/sys/class/input/' / rel_path / 'device'
+
+    def __getattr__(self, attr):
+        [path, *_junk] = self._path.glob(f'*:{attr}')
+        return Led(path)
+
 class Blinker(threading.Thread):
 
     def __init__(self, keyboard_device):
         threading.Thread.__init__(self)
         self.event = threading.Event()
-        self.led = keyboardleds.LedKit(keyboard_device).caps_lock  # pylint: disable=no-member
+        self.led = Leds(keyboard_device).capslock  # pylint: disable=no-member
 
     def __enter__(self):
         self.start()
@@ -180,7 +210,8 @@ def main():
         'this might be needed when usb-modeswitch is misbehaving'
     )
     default_keyboard_dev = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
-    ap.add_argument('--keyboard-dev', metavar='PATH', default=default_keyboard_dev, help=
+    ap.add_argument('--keyboard-dev', metavar='PATH', type=pathlib.Path,
+        default=default_keyboard_dev, help=
         'use this input device for LED blinking '
         f'(default: {default_keyboard_dev})'
     )

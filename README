@@ -21,15 +21,12 @@ Prerequisites
 
 * Python ≥ 3.6
 * netifaces_
-* python-keyboardleds_
 * abdicate_
 * ifupdown_
 * WvDial
 
 .. _netifaces:
    https://pypi.org/project/netifaces/
-.. _python-keyboardleds:
-   https://pypi.org/project/python-keyboardleds/
 .. _abdicate:
    https://github.com/jwilk/abdicate
 .. _ifupdown:
