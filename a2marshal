@@ -46,11 +46,10 @@ def run(cmdline):
     subprocess.check_call(cmdline, shell=shell)
 
 def update_resolv_conf():
-    path = '/proc/{pid}/ns/mnt'
-    assert not os.path.samefile(
-        path.format(pid=1),
-        path.format(pid=os.getpid()),
-    )
+    assert not os.path.samefile(*(
+        f'/proc/{pid}/ns/mnt'
+        for pid in [1, os.getpid()]
+    ))
     run('mount --bind /etc/ppp/resolv.conf /etc/resolv.conf')
 
 def pgrep(command):
