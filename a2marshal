@@ -43,14 +43,30 @@ def msg_now():
 
 def run(cmdline):
     shell = isinstance(cmdline, str)
-    subprocess.check_call(cmdline, shell=shell)
+    subprocess.check_call(cmdline, shell=shell, close_fds=False)
+
+@contextlib.contextmanager
+def pathopen(path):
+    try:
+        fd = os.open(path, os.O_PATH | os.O_NOFOLLOW)
+        yield fd
+    finally:
+        os.close(fd)
+
+def bindmount(src, dst):
+    with pathopen(src) as src_fd, pathopen(dst) as dst_fd:
+        cmdline = 'mount -c --bind'.split()
+        for fd in src_fd, dst_fd:
+            os.set_inheritable(fd, True)
+            cmdline += [f'/proc/self/fd/{fd}']
+        run(cmdline)
 
 def update_resolv_conf():
     assert not os.path.samefile(*(
         f'/proc/{pid}/ns/mnt'
         for pid in [1, os.getpid()]
     ))
-    run('mount --bind /etc/ppp/resolv.conf /etc/resolv.conf')
+    bindmount('/etc/ppp/resolv.conf', '/etc/resolv.conf')
 
 def pgrep(command):
     for procdir in glob.glob('/proc/[0-9]*'):
