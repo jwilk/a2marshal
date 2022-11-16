@@ -25,7 +25,8 @@ import netifaces
 type(0_0)  # Python >= 3.6 is required
 
 def msg_start(msg):
-    print(msg, end=': ')
+    now = datetime.datetime.now().replace(microsecond=0)
+    print(f'[{now}]', msg, end=': ')
     sys.stdout.flush()
 
 def msg_ping():
@@ -35,11 +36,6 @@ def msg_ping():
 def msg_end(msg):
     print(msg)
     sys.stdout.flush()
-
-def msg_now():
-    now = datetime.datetime.now().replace(microsecond=0)
-    msg_start('timestamp')
-    msg_end(str(now))
 
 def run(cmdline):
     shell = isinstance(cmdline, str)
@@ -273,7 +269,6 @@ def main():
                     net_up(options.iface)
                     last_address = None
                 blinker.join()
-                msg_now()
                 continue
         time.sleep(1 + random.random())
 
