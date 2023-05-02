@@ -217,8 +217,8 @@ def main():
         f'ifupdown interface name (default: {default_iface})'
     )
     ap.add_argument('--modem-dev', metavar='PATH', help=
-        'run "udevadm trigger" if this device doesn\'t exist; '
-        'this might be needed when usb-modeswitch is misbehaving'
+        'run "udevadm trigger" if the device doesn\'t exist; '
+        'might be needed when usb-modeswitch is misbehaving'
     )
     default_keyboard_dev = '/dev/input/by-path/platform-i8042-serio-0-event-kbd'
     ap.add_argument('--keyboard-dev', metavar='PATH', type=pathlib.Path,
