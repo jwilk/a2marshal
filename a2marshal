@@ -22,7 +22,7 @@ import time
 
 import netifaces
 
-type(0_0)  # Python >= 3.6 is required
+int(0_0)  # Python >= 3.6 is required
 
 def msg_start(msg):
     now = datetime.datetime.now().replace(microsecond=0)
