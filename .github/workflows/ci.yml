@@ -31,7 +31,7 @@ jobs:
     - name: install deps
       run: |
         python3 -m pip install wheel
-        python3 -m pip install netifaces python-keyboardleds
+        python3 -m pip install netifaces
     - name: smoke test
       run:
         ./a2marshal --help
