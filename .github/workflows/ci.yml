@@ -30,7 +30,6 @@ jobs:
         python-version: ${{matrix.python}}
     - name: install deps
       run: |
-        python3 -m pip install wheel
         python3 -m pip install netifaces
     - name: smoke test
       run:
