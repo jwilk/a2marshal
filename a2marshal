@@ -209,6 +209,7 @@ private_ns_token = 'AERO2_MANAGER_PRIVATE_NS'
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.color = False
     if sys.version_info < (3, 10):
         # https://bugs.python.org/issue9694
         ap._optionals.title = 'options'  # pylint: disable=protected-access
